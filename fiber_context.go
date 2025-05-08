@@ -1,9 +1,13 @@
 package kuroctxfiber
 
 import (
+	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"log"
+	"os"
+	"os/signal"
+	"time"
 )
 
 type defaultFiber struct {
@@ -12,11 +16,31 @@ type defaultFiber struct {
 	version string
 }
 
-func (f *defaultFiber) Server() {
-	//TODO implement me
+func (f *defaultFiber) Start() {
 	log.Println("server start port: ", f.port)
 	if err := f.server.Listen(fmt.Sprintf("%v", f.port)); err != nil {
 		log.Fatalf("error running server: %v\n", err)
+	}
+}
+
+func (f *defaultFiber) Stop(timeout time.Duration) {
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, os.Kill)
+
+	<-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	if err := f.server.Shutdown(); err != nil {
+		log.Fatalf("error shutting down server: %v\n", err)
+	}
+
+	select {
+	case <-ctx.Done():
+		log.Println("service is shutting down.")
+	case <-time.After(timeout):
+		log.Println("service shutdown timeout.")
 	}
 }
 

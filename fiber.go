@@ -1,8 +1,11 @@
 package kuroctxfiber
 
+import "time"
+
 type KuroFiber interface {
 	CreateApiVersion(version string) Group
-	Server()
+	Start()
+	Stop(timeout time.Duration)
 
 	EnableLog()
 	EnableLoggerFile(fileName string)
