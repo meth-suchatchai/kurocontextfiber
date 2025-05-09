@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
 	"log"
 	"os"
 	"os/signal"
 	"time"
 )
+
+var CFG = fiber.Config{}
 
 type defaultFiber struct {
 	server  *fiber.App
@@ -45,22 +48,21 @@ func (f *defaultFiber) Stop(timeout time.Duration) {
 }
 
 func New(config Config) KuroFiber {
-	cfg := fiber.Config{
-		AppName: config.Name,
-	}
+	CFG.AppName = config.Name
+
+	CFG.Views = html.New("./views", ".html")
 
 	df := &defaultFiber{}
-
 	df.port = ":8080"
 	if config.Port != "" {
 		df.port = ":" + config.Port
 	}
 
-	df.server = fiber.New(cfg)
+	df.server = fiber.New(CFG)
 
-	df.EnableMonitor()
-	df.EnableLog()
-	df.EnableCors(CorsConfig{})
+	df.server.All("/", func(c *fiber.Ctx) error {
+		return c.Render("index", fiber.Map{"AppName": CFG.AppName})
+	})
 
 	return df
 }

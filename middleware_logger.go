@@ -6,8 +6,14 @@ import (
 	"os"
 )
 
-func (f *defaultFiber) EnableLog() {
-	f.server.Use(logger.New(logger.ConfigDefault))
+var loggerConfig = logger.ConfigDefault
+
+func (f *defaultFiber) EnableLog(config ...logger.Config) {
+	if len(config) != 0 {
+		loggerConfig = config[0]
+	}
+
+	f.server.Use(logger.New(loggerConfig))
 }
 
 func (f *defaultFiber) EnableLoggerFile(fileName string) {
@@ -15,8 +21,9 @@ func (f *defaultFiber) EnableLoggerFile(fileName string) {
 	if err != nil {
 		log.Fatal("enable logger file error:", err)
 	}
+	defer file.Close()
 
-	f.server.Use(logger.New(logger.Config{
-		Output: file,
-	}))
+	loggerConfig.Output = file
+
+	f.server.Use(loggerConfig)
 }

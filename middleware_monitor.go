@@ -2,7 +2,13 @@ package kuroctxfiber
 
 import "github.com/gofiber/fiber/v2/middleware/monitor"
 
-func (f *defaultFiber) EnableMonitor() {
+var monitorConfig = monitor.Config{}
+
+func (f *defaultFiber) EnableMonitor(config ...monitor.Config) {
 	/* Get Monitor metrics */
-	f.server.Get("/logs/metrics", monitor.New())
+	if len(config) != 0 {
+		monitorConfig = config[0]
+	}
+
+	f.server.Get("/logs/metrics", monitor.New(monitorConfig))
 }

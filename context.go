@@ -27,6 +27,14 @@ func (c *Context) BindAndValidate(params any) error {
 	return nil
 }
 
-func (c *Context) sendError(params any) error {
+func (c *Context) BindParamsAndValidate(params any) error {
+	if err := c.ParamsParser(params); err != nil {
+		return err
+	}
+
+	if err := validate.Struct(params); err != nil {
+		return err
+	}
+
 	return nil
 }
