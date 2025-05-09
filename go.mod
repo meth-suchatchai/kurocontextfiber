@@ -1,4 +1,4 @@
-module github.com/BossZaNaHub/kuroctxfiber
+module github.com/meth-suchatchai/kuroctxfiber
 
 go 1.23.0
 
